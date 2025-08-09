@@ -1,0 +1,150 @@
+/* NYC Building Permit Finder - Custom Styles */
+
+/* Base Styles */
+body {
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden; 
+}
+
+/* Custom Scrollbar Styles */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #374151; /* gray-700 */
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #6b7280; /* gray-500 */
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af; /* gray-400 */
+}
+
+/* Table Container */
+.table-container {
+    max-height: 40vh; 
+    overflow-y: auto;
+    border: 1px solid #374151; /* gray-700 */
+    border-radius: 0.5rem; /* rounded-lg */
+}
+
+/* Interactive Elements */
+.clickable-value, .job-filing-link {
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    transition: text-decoration-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.clickable-value:hover, .job-filing-link:hover {
+    text-decoration-color: inherit;
+    color: #38bdf8; /* sky-400 */
+}
+
+/* Breadcrumb Navigation */
+.breadcrumb-item {
+    cursor: pointer;
+}
+
+.breadcrumb-item:hover {
+    text-decoration: underline;
+    color: #38bdf8; /* sky-400 */
+}
+
+.breadcrumb-item.active {
+    color: #7dd3fc; /* sky-300 */
+    font-weight: 500;
+    cursor: default;
+}
+
+.breadcrumb-item.active:hover {
+    text-decoration: none;
+}
+
+/* Filter Sections */
+.filter-section fieldset {
+    margin-bottom: 0.75rem;
+}
+
+.filter-section legend {
+    font-weight: 500;
+    color: #cbd5e1; /* slate-300 */
+    margin-bottom: 0.5rem; 
+}
+
+.filter-options-container {
+    max-height: 150px; 
+    overflow-y: auto;
+    padding-right: 5px; 
+    border: 1px solid #4b5563; /* gray-600 */
+    border-radius: 0.375rem; 
+    padding: 0.75rem; 
+}
+
+/* Details Panel */
+#detailsPanel {
+    width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: width 0.3s ease-in-out, padding 0.3s ease-in-out, opacity 0.3s ease-in-out 0.1s, visibility 0s linear 0.3s;
+    background-color: #1e293b; /* slate-800 */
+    box-shadow: -10px 0 20px rgba(0,0,0,0.25);
+    height: calc(100vh - 2rem); 
+    position: fixed; 
+    top: 1rem; 
+    right: 0; 
+    z-index: 40; 
+    border-left: 1px solid #334155; /* slate-700 */
+}
+
+#detailsPanel.active {
+    width: 100%; 
+    padding-left: 1.5rem; 
+    padding-right: 1.5rem; 
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+    opacity: 1;
+    visibility: visible;
+    transition: width 0.3s ease-in-out, padding 0.3s ease-in-out, opacity 0.3s ease-in-out, visibility 0s linear 0s;
+}
+
+/* Responsive Details Panel */
+@media (min-width: 768px) { 
+    #detailsPanel.active {
+        width: 40%; 
+    }
+}
+
+@media (min-width: 1024px) { 
+    #detailsPanel.active {
+        width: 35%; 
+    }
+}
+
+/* Main Content Area */
+#mainContentArea {
+    min-width: 0; 
+    transition: margin-right 0.3s ease-in-out;
+}
+
+/* Panel Header Sticky */
+.panel-header-sticky {
+    position: sticky;
+    top: -1.5rem; 
+    background-color: #1e293b; 
+    z-index: 10; 
+    padding-top: 1.5rem; 
+    padding-bottom: 0.75rem; 
+    margin-left: -1.5rem; 
+    margin-right: -1.5rem; 
+    padding-left: 1.5rem; 
+    padding-right: 1.5rem; 
+}

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Search for approved building permits from NYC DOB NOW. Find permits by address with advanced filtering and detailed information.">
+    <meta name="keywords" content="NYC, building permits, DOB NOW, New York City, construction permits, building department">
+    <meta name="author" content="NYC Building Permit Finder">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="NYC Building Permit Finder">
+    <meta property="og:description" content="Search for approved building permits from NYC DOB NOW. Find permits by address with advanced filtering.">
+    <meta property="og:url" content="">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="NYC Building Permit Finder">
+    <meta property="twitter:description" content="Search for approved building permits from NYC DOB NOW. Find permits by address with advanced filtering.">
+    
+    <title>NYC Building Permit Finder</title>
+    
+    <!-- Favicon placeholder -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- External CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-gradient-to-br from-slate-900 to-slate-800 text-gray-100 min-h-screen flex flex-col items-center p-4 selection:bg-sky-500 selection:text-white">
+
+    <div id="appWrapper" class="w-full max-w-full lg:max-w-7xl flex-grow flex relative"> 
+        <div id="mainContentArea" class="bg-slate-700 shadow-2xl rounded-xl p-6 md:p-8 flex-grow overflow-y-auto w-full"> 
+            <header class="mb-8 text-center"> 
+                <h1 class="text-3xl md:text-4xl font-bold text-sky-400">NYC Building Permit Finder</h1>
+                <p class="text-slate-300 mt-2 text-sm md:text-base">Search for approved building permits from DOB NOW. <br class="sm:hidden">Tip: Use full street names (e.g., AVENUE, STREET).</p>
+            </header>
+
+            <form id="permitForm" class="space-y-6 mb-8"> 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="houseNumber" class="block text-sm font-medium text-slate-300 mb-1">House Number <span class="text-red-500">*</span></label>
+                        <input type="text" id="houseNumber" name="houseNumber" required
+                               class="w-full bg-slate-600 text-gray-100 border-slate-500 rounded-lg shadow-sm focus:ring-sky-500 focus:border-sky-500 p-3 transition duration-150 placeholder-slate-400"
+                               placeholder="e.g., 123 or 10-12">
+                    </div>
+                    <div>
+                        <label for="streetName" class="block text-sm font-medium text-slate-300 mb-1">Street Name <span class="text-red-500">*</span></label>
+                        <input type="text" id="streetName" name="streetName" required
+                               class="w-full bg-slate-600 text-gray-100 border-slate-500 rounded-lg shadow-sm focus:ring-sky-500 focus:border-sky-500 p-3 transition duration-150 placeholder-slate-400"
+                               placeholder="e.g., Main Street or 4th Avenue">
+                    </div>
+                </div>
+                <div>
+                    <label for="startDate" class="block text-sm font-medium text-slate-300 mb-1">Permit Issuance Start Date (Optional)</label>
+                    <input type="date" id="startDate" name="startDate"
+                           class="w-full bg-slate-600 text-gray-100 border-slate-500 rounded-lg shadow-sm focus:ring-sky-500 focus:border-sky-500 p-3 transition duration-150"
+                           placeholder="YYYY-MM-DD">
+                </div>
+                <button type="submit"
+                        class="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-opacity-75 transition duration-150 ease-in-out transform hover:scale-105 active:bg-sky-800">
+                    Search Permits
+                </button>
+            </form>
+            
+            <div class="flex flex-wrap gap-2 mb-6"> 
+                <button id="toggleColumnFilterButton" class="bg-slate-600 hover:bg-slate-500 text-slate-100 font-medium py-2 px-4 rounded-lg text-sm transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                    Show/Hide Columns
+                </button>
+                <button id="toggleDataFilterButton" class="bg-slate-600 hover:bg-slate-500 text-slate-100 font-medium py-2 px-4 rounded-lg text-sm transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                    Filter Data
+                </button>
+            </div>
+            <div id="columnFilterControls" class="hidden mb-6 p-4 bg-slate-600 rounded-lg grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-6 gap-y-3"> 
+                </div>
+            <div id="dataFilterContainer" class="hidden mb-6 p-4 bg-slate-600 rounded-lg">
+                <div id="dataFilterControls" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 filter-section"> 
+                    </div>
+                <button id="clearDataFiltersButton" class="mt-6 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg text-sm transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    Clear All Data Filters
+                </button>
+            </div>
+
+            <div id="loadingIndicator" class="text-center my-8 hidden"> 
+                <svg class="animate-spin h-10 w-10 text-sky-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p id="loadingText" class="text-slate-300 mt-3">Fetching permits...</p>
+            </div>
+
+            <div id="messageArea" class="text-center my-8 text-slate-300"></div> 
+            <div id="breadcrumbContainer" class="mb-4 text-sm text-slate-400"></div>
+
+            <div id="resultsContainer" class="hidden">
+                <h2 id="resultsTitle" class="text-2xl font-semibold mb-4 text-sky-400">Permit Results</h2>
+                <div class="table-container bg-slate-600"> 
+                    <table class="min-w-full divide-y divide-slate-500"> 
+                        <thead id="resultsThead" class="bg-slate-650 sticky top-0 z-10"> 
+                            </thead>
+                        <tbody id="resultsBody" class="bg-slate-600 divide-y divide-slate-500">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="detailsPanel" class="overflow-y-auto rounded-l-xl"> 
+            <div class="panel-header-sticky"> 
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-semibold text-sky-400" id="panelTitle">Permit Details</h3>
+                    <button type="button" id="closePanelButton" class="text-slate-400 hover:text-sky-300 transition-colors p-1 rounded-full hover:bg-slate-700" aria-label="Close panel">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+            </div>
+            <div id="panelBody" class="space-y-3 text-sm pt-4 pb-6"> 
+                </div>
+            <div class="mt-6 pt-4 border-t border-slate-700">
+                 <h4 class="text-lg font-semibold text-sky-500 mb-3">Further Information & Official Portals</h4>
+                 <div id="panelExternalLinks" class="space-y-2">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center text-slate-500 mt-6 pb-4"> 
+        <p>Data sourced from <a href="https://data.cityofnewyork.us/Housing-Development/DOB-NOW-Build-Approved-Permits/rbx6-tga4" target="_blank" rel="noopener noreferrer" class="text-sky-500 hover:underline">NYC Open Data</a>.</p>
+    </footer>
+
+    <!-- External JavaScript -->
+    <script src="js/app.js"></script>
+</body>
+</html>
