@@ -45,11 +45,13 @@
                                class="w-full bg-slate-600 text-gray-100 border-slate-500 rounded-lg shadow-sm focus:ring-sky-500 focus:border-sky-500 p-3 transition duration-150 placeholder-slate-400"
                                placeholder="e.g., 123 or 10-12">
                     </div>
-                    <div>
+                    <div class="relative">
                         <label for="streetName" class="block text-sm font-medium text-slate-300 mb-1">Street Name <span class="text-red-500">*</span></label>
-                        <input type="text" id="streetName" name="streetName" required
+                        <input type="text" id="streetName" name="streetName" required autocomplete="off"
                                class="w-full bg-slate-600 text-gray-100 border-slate-500 rounded-lg shadow-sm focus:ring-sky-500 focus:border-sky-500 p-3 transition duration-150 placeholder-slate-400"
                                placeholder="e.g., Main Street or 4th Avenue">
+                        <div id="streetNameSuggestions" class="absolute z-50 w-full bg-slate-700 border border-slate-500 rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto hidden">
+                        </div>
                     </div>
                 </div>
                 <div>

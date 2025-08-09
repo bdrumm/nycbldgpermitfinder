@@ -4,6 +4,139 @@ document.addEventListener('DOMContentLoaded', () => {
  * Main application JavaScript
  */
 
+// Street Name Autocomplete Data
+const streetNameMappings = {
+    // Common abbreviations to full names
+    'ave': 'AVENUE',
+    'avenue': 'AVENUE',
+    'av': 'AVENUE',
+    'st': 'STREET',
+    'street': 'STREET',
+    'str': 'STREET',
+    'rd': 'ROAD',
+    'road': 'ROAD',
+    'blvd': 'BOULEVARD',
+    'boulevard': 'BOULEVARD',
+    'pl': 'PLACE',
+    'place': 'PLACE',
+    'ln': 'LANE',
+    'lane': 'LANE',
+    'dr': 'DRIVE',
+    'drive': 'DRIVE',
+    'ct': 'COURT',
+    'court': 'COURT',
+    'pkwy': 'PARKWAY',
+    'parkway': 'PARKWAY',
+    'ter': 'TERRACE',
+    'terrace': 'TERRACE',
+    'way': 'WAY',
+    'plaza': 'PLAZA',
+    'square': 'SQUARE',
+    'circle': 'CIRCLE',
+    'crescent': 'CRESCENT',
+    'alley': 'ALLEY',
+    'walk': 'WALK',
+    'row': 'ROW',
+    'slip': 'SLIP',
+    'pier': 'PIER',
+    'wharf': 'WHARF',
+    'bridge': 'BRIDGE',
+    'tunnel': 'TUNNEL',
+    'highway': 'HIGHWAY',
+    'expressway': 'EXPRESSWAY',
+    'turnpike': 'TURNPIKE'
+};
+
+// Common NYC street patterns and variations
+const commonStreetPatterns = [
+    // Numbered streets
+    { pattern: /^(\d+)(st|nd|rd|th)\s+(ave|avenue|av)$/i, format: (match) => `${match[1]} AVENUE` },
+    { pattern: /^(\d+)(st|nd|rd|th)\s+(st|street|str)$/i, format: (match) => `${match[1]} STREET` },
+    { pattern: /^(\d+)\s+(ave|avenue|av)$/i, format: (match) => `${match[1]} AVENUE` },
+    { pattern: /^(\d+)\s+(st|street|str)$/i, format: (match) => `${match[1]} STREET` },
+    
+    // Directional patterns
+    { pattern: /^(east|e)\s+(.+)$/i, format: (match) => `EAST ${normalizeStreetName(match[2])}` },
+    { pattern: /^(west|w)\s+(.+)$/i, format: (match) => `WEST ${normalizeStreetName(match[2])}` },
+    { pattern: /^(north|n)\s+(.+)$/i, format: (match) => `NORTH ${normalizeStreetName(match[2])}` },
+    { pattern: /^(south|s)\s+(.+)$/i, format: (match) => `SOUTH ${normalizeStreetName(match[2])}` },
+    
+    // Common NYC streets with variations
+    { pattern: /^broadway$/i, format: () => 'BROADWAY' },
+    { pattern: /^bway$/i, format: () => 'BROADWAY' },
+    { pattern: /^park\s+ave$/i, format: () => 'PARK AVENUE' },
+    { pattern: /^madison\s+ave$/i, format: () => 'MADISON AVENUE' },
+    { pattern: /^lexington\s+ave$/i, format: () => 'LEXINGTON AVENUE' },
+    { pattern: /^lex\s+ave$/i, format: () => 'LEXINGTON AVENUE' },
+    { pattern: /^amsterdam\s+ave$/i, format: () => 'AMSTERDAM AVENUE' },
+    { pattern: /^columbus\s+ave$/i, format: () => 'COLUMBUS AVENUE' },
+    { pattern: /^central\s+park\s+west$/i, format: () => 'CENTRAL PARK WEST' },
+    { pattern: /^cpw$/i, format: () => 'CENTRAL PARK WEST' },
+    { pattern: /^fdr\s+drive$/i, format: () => 'FDR DRIVE' },
+    { pattern: /^henry\s+hudson\s+pkwy$/i, format: () => 'HENRY HUDSON PARKWAY' },
+    { pattern: /^west\s+side\s+hwy$/i, format: () => 'WEST SIDE HIGHWAY' }
+];
+
+function normalizeStreetName(streetName) {
+    if (!streetName) return '';
+    
+    const words = streetName.trim().split(/\s+/);
+    const normalizedWords = words.map(word => {
+        const lowerWord = word.toLowerCase();
+        return streetNameMappings[lowerWord] || word.toUpperCase();
+    });
+    
+    return normalizedWords.join(' ');
+}
+
+function generateStreetSuggestions(input) {
+    if (!input || input.length < 2) return [];
+    
+    const suggestions = new Set();
+    const inputLower = input.toLowerCase().trim();
+    
+    // Check for pattern matches first
+    for (const pattern of commonStreetPatterns) {
+        const match = inputLower.match(pattern.pattern);
+        if (match) {
+            suggestions.add(pattern.format(match));
+        }
+    }
+    
+    // Generate basic normalization
+    const normalized = normalizeStreetName(input);
+    if (normalized && normalized !== input.toUpperCase()) {
+        suggestions.add(normalized);
+    }
+    
+    // Add common variations for partial matches
+    if (inputLower.includes('ave') || inputLower.includes('av')) {
+        const baseStreet = inputLower.replace(/(ave|avenue|av)/g, '').trim();
+        if (baseStreet) {
+            suggestions.add(`${baseStreet.toUpperCase()} AVENUE`);
+        }
+    }
+    
+    if (inputLower.includes('st') && !inputLower.includes('east') && !inputLower.includes('west')) {
+        const baseStreet = inputLower.replace(/(st|street|str)/g, '').trim();
+        if (baseStreet) {
+            suggestions.add(`${baseStreet.toUpperCase()} STREET`);
+        }
+    }
+    
+    // Add numbered street variations
+    const numberMatch = inputLower.match(/^(\d+)/);
+    if (numberMatch) {
+        const num = numberMatch[1];
+        suggestions.add(`${num} STREET`);
+        suggestions.add(`${num} AVENUE`);
+        suggestions.add(`EAST ${num} STREET`);
+        suggestions.add(`WEST ${num} STREET`);
+    }
+    
+    return Array.from(suggestions).slice(0, 8); // Limit to 8 suggestions
+}
+
 // DOM Elements
 const permitForm = document.getElementById('permitForm');
 const loadingIndicator = document.getElementById('loadingIndicator');
@@ -215,10 +348,114 @@ function renderBreadcrumbs() {
     });
 }
 
+// Street Name Autocomplete Setup
+function setupStreetNameAutocomplete() {
+    const streetNameInput = document.getElementById('streetName');
+    const suggestionsContainer = document.getElementById('streetNameSuggestions');
+    let currentSuggestionIndex = -1;
+
+    function showSuggestions(suggestions) {
+        suggestionsContainer.innerHTML = '';
+        if (suggestions.length === 0) {
+            suggestionsContainer.classList.add('hidden');
+            return;
+        }
+
+        suggestions.forEach((suggestion, index) => {
+            const suggestionItem = document.createElement('div');
+            suggestionItem.className = 'px-3 py-2 cursor-pointer hover:bg-slate-600 text-slate-200 text-sm border-b border-slate-600 last:border-b-0';
+            suggestionItem.textContent = suggestion;
+            suggestionItem.addEventListener('click', () => {
+                streetNameInput.value = suggestion;
+                suggestionsContainer.classList.add('hidden');
+                currentSuggestionIndex = -1;
+            });
+            suggestionsContainer.appendChild(suggestionItem);
+        });
+
+        suggestionsContainer.classList.remove('hidden');
+        currentSuggestionIndex = -1;
+    }
+
+    function hideSuggestions() {
+        suggestionsContainer.classList.add('hidden');
+        currentSuggestionIndex = -1;
+    }
+
+    function highlightSuggestion(index) {
+        const suggestions = suggestionsContainer.children;
+        Array.from(suggestions).forEach((item, i) => {
+            if (i === index) {
+                item.classList.add('bg-slate-600');
+            } else {
+                item.classList.remove('bg-slate-600');
+            }
+        });
+    }
+
+    streetNameInput.addEventListener('input', (e) => {
+        const value = e.target.value;
+        if (value.length < 2) {
+            hideSuggestions();
+            return;
+        }
+
+        const suggestions = generateStreetSuggestions(value);
+        showSuggestions(suggestions);
+    });
+
+    streetNameInput.addEventListener('keydown', (e) => {
+        const suggestions = suggestionsContainer.children;
+        
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (suggestions.length > 0) {
+                currentSuggestionIndex = Math.min(currentSuggestionIndex + 1, suggestions.length - 1);
+                highlightSuggestion(currentSuggestionIndex);
+            }
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (suggestions.length > 0) {
+                currentSuggestionIndex = Math.max(currentSuggestionIndex - 1, -1);
+                if (currentSuggestionIndex === -1) {
+                    Array.from(suggestions).forEach(item => item.classList.remove('bg-slate-600'));
+                } else {
+                    highlightSuggestion(currentSuggestionIndex);
+                }
+            }
+        } else if (e.key === 'Enter' && currentSuggestionIndex >= 0) {
+            e.preventDefault();
+            if (suggestions[currentSuggestionIndex]) {
+                streetNameInput.value = suggestions[currentSuggestionIndex].textContent;
+                hideSuggestions();
+            }
+        } else if (e.key === 'Escape') {
+            hideSuggestions();
+        }
+    });
+
+    streetNameInput.addEventListener('blur', (e) => {
+        // Delay hiding to allow click events on suggestions
+        setTimeout(() => {
+            if (!suggestionsContainer.contains(document.activeElement)) {
+                hideSuggestions();
+            }
+        }, 150);
+    });
+
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!streetNameInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+            hideSuggestions();
+        }
+    });
+}
+
 // Main Form Submit Handler
 document.addEventListener('DOMContentLoaded', () => {
     populateColumnFilters();
     populateDataFilters();
+    setupStreetNameAutocomplete();
     permitForm.addEventListener('submit', async function(event) {
         event.preventDefault();
         searchHistory = []; 
